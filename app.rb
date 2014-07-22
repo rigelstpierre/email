@@ -10,9 +10,6 @@ Dir[File.join(File.dirname(__FILE__), 'app', '**', '*.rb')].each do |file|
 end
 
 class User < ActiveRecord::Base
- validates :email, presence: true
- validates_uniqueness_of :email
- validates_uniqueness_of :uuid
 end
 
 get '/' do
@@ -21,7 +18,18 @@ get '/' do
 end
 
 post '/register' do
-  @user = User.create(email: params[:email], uuid: SecureRandom.hex(10))
-  @user.to_json
+  if User.find_by(email: params[:email]).present?
+    'User Already Exists'
+  else
+    @user = User.create(email: params[:email], uuid: SecureRandom.hex(10))
+    @user.token.to_json
+  end
+end
+
+post '/user/:uuid' do
+  user = User.find_by(uuid: params[:uuid])
+  if user.nil?
+    'User Not Found'
+  end
 end
 
