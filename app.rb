@@ -23,7 +23,7 @@ post '/register' do
     'User Already Exists'
   else
     @user = User.create(email: params[:email], uuid: SecureRandom.hex(10))
-    @user.token.to_json
+    "Token: #{@user.token.to_json}"
   end
 end
 
@@ -34,17 +34,17 @@ post '/user/:uuid' do
   else
     m = Mandrill::API.new
     message = {
-    :subject=> "Hello from the Mandrill API",
-    :from_name=> "Your name",
-    :text=>"Hi message, how are you?",
-    :to=>[
+    # subject: "Message from",
+    from_name: params[:name],
+    text: params[:message],
+    to: [
       {
-        :email=> "rigel@rigel.co",
-        :name=> "Recipient1"
+        email: user.email,
+        # :name=> user.name,
       }
     ],
-    :html=>"<html><h1>Hi <strong>message</strong>, how are you?</h1></html>",
-    :from_email=>"rigel@rigel.co"
+    # :html=>"<html><h1>Hi <strong>message</strong>, how are you?</h1></html>",
+    from_email: params[:email]
     }
     m.messages.send message
     'Message Sent'
